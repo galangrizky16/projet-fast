@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -33,7 +34,7 @@ class EnsureStaffAccess
             || Str::contains($roleSlug, 'dosen')
             || Str::contains($roleName, 'dosen');
 
-        \Log::info('EnsureStaffAccess check', [
+        Log::info('EnsureStaffAccess check', [
             'path' => $request->path(),
             'user_id' => $user->id,
             'role_slug' => $roleSlug,

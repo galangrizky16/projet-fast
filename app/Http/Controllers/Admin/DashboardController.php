@@ -13,6 +13,7 @@ use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -22,12 +23,11 @@ class DashboardController extends Controller
     public function __construct(
         protected FastApprovalWorkflowService $workflow,
         protected SuratTemplateRendererService $templateRenderer,
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): Response
     {
-        \Log::info('DashboardController::index called', [
+        Log::info('DashboardController::index called', [
             'user_id' => $request->user()?->id,
         ]);
 
@@ -58,7 +58,7 @@ class DashboardController extends Controller
         $surats = $query
             ->latest()
             ->paginate(10)
-            ->through(fn (Surat $surat): array => [
+            ->through(fn(Surat $surat): array => [
                 'id' => $surat->id,
                 'status' => $surat->status,
                 'tanggal_pengajuan' => optional($surat->tanggal_pengajuan ?? $surat->created_at)?->toISOString(),
@@ -75,27 +75,27 @@ class DashboardController extends Controller
             ->withQueryString();
 
         // ── TAMBAHAN 1: recent history ─────────────────────────────────
-    $recentHistory = [];
-    if (\Schema::hasTable('surat_histories')) {
-        $recentHistory = \App\Models\SuratHistory::query()
-            ->with(['user:id,name', 'surat.jenisSurat:id,nama'])
-            ->latest()
-            ->limit(10)
-            ->get()
-            ->map(fn ($h) => [
-                'id'           => $h->id,
-                'action'       => $h->action,
-                'action_label' => $h->action_label,
-                'keterangan'   => $h->keterangan,
-                'created_at'   => $h->created_at?->toISOString(),
-                'user'         => ['name' => $h->user?->name],
-                'surat'        => [
-                    'id'         => $h->surat?->id,
-                    'jenisSurat' => ['nama' => $h->surat?->jenisSurat?->nama],
-                ],
-            ]);
-    }
-    // ──────────────────────────────────────────────────────────────
+        $recentHistory = [];
+        if (\Schema::hasTable('surat_histories')) {
+            $recentHistory = \App\Models\SuratHistory::query()
+                ->with(['user:id,name', 'surat.jenisSurat:id,nama'])
+                ->latest()
+                ->limit(10)
+                ->get()
+                ->map(fn($h) => [
+                    'id'           => $h->id,
+                    'action'       => $h->action,
+                    'action_label' => $h->action_label,
+                    'keterangan'   => $h->keterangan,
+                    'created_at'   => $h->created_at?->toISOString(),
+                    'user'         => ['name' => $h->user?->name],
+                    'surat'        => [
+                        'id'         => $h->surat?->id,
+                        'jenisSurat' => ['nama' => $h->surat?->jenisSurat?->nama],
+                    ],
+                ]);
+        }
+        // ──────────────────────────────────────────────────────────────
 
         return Inertia::render('admin/dashboard/Index', [
             'surats' => $surats,
@@ -131,7 +131,7 @@ class DashboardController extends Controller
             'jenisSurats' => JenisSurat::query()
                 ->orderBy('nama')
                 ->get(['id', 'nama'])
-                ->map(fn (JenisSurat $jenisSurat): array => [
+                ->map(fn(JenisSurat $jenisSurat): array => [
                     'id' => $jenisSurat->id,
                     'nama' => $jenisSurat->nama,
                 ])
@@ -158,7 +158,7 @@ class DashboardController extends Controller
             'jenis_surat' => $surat->jenisSurat?->nama,
             'keperluan' => $surat->keperluan,
             'isi_surat' => is_array($isiSurat) ? $isiSurat : [],
-            'lampiran' => $surat->lampirans->map(fn ($lampiran): array => [
+            'lampiran' => $surat->lampirans->map(fn($lampiran): array => [
                 'id' => $lampiran->id,
                 'name' => $lampiran->nama_file,
                 'url' => route('admin.lampiran.preview', $lampiran->id, absolute: false),
@@ -184,7 +184,7 @@ class DashboardController extends Controller
         $rendered = $this->templateRenderer->renderForSurat($surat);
 
         return response(
-            $this->templateRenderer->wrapDocumentHtml('Preview '.$surat->jenisSurat?->nama, $rendered['html'], $surat->jenisSurat?->template),
+            $this->templateRenderer->wrapDocumentHtml('Preview ' . $surat->jenisSurat?->nama, $rendered['html'], $surat->jenisSurat?->template),
             200,
         )->header('Content-Type', 'text/html; charset=UTF-8');
     }
@@ -287,7 +287,7 @@ class DashboardController extends Controller
             $lampiran->nama_file,
             [
                 'Content-Type' => $lampiran->tipe ?: 'application/octet-stream',
-                'Content-Disposition' => 'inline; filename="'.addslashes($lampiran->nama_file).'"',
+                'Content-Disposition' => 'inline; filename="' . addslashes($lampiran->nama_file) . '"',
             ],
         );
     }

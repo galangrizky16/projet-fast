@@ -7,6 +7,7 @@ use App\Models\JenisSurat;
 use App\Models\Surat;
 use App\Models\SuratCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -14,7 +15,7 @@ class DashboardController extends Controller
 {
     public function index(Request $request): Response
     {
-        \Log::info('Dashboard accessed', ['user' => $request->user()?->id]);
+        Log::info('Dashboard accessed', ['user' => $request->user()?->id]);
         $user = $request->user();
         abort_if($user === null, 403);
 
@@ -26,7 +27,7 @@ class DashboardController extends Controller
         $baseQuery = Surat::query()
             ->with([
                 'jenisSurat',
-                'approvalFlows' => fn ($query) => $query->latest('tanggal_aksi')->latest('id'),
+                'approvalFlows' => fn($query) => $query->latest('tanggal_aksi')->latest('id'),
             ])
             ->where('pemohon_id', $user->id);
 
@@ -52,7 +53,7 @@ class DashboardController extends Controller
 
         $categories = SuratCategory::query()
             ->where('is_active', true)
-            ->when($categoryIds->isNotEmpty(), fn ($query) => $query->whereIn('id', $categoryIds))
+            ->when($categoryIds->isNotEmpty(), fn($query) => $query->whereIn('id', $categoryIds))
             ->orderBy('urutan')
             ->orderBy('nama')
             ->get(['id', 'nama', 'slug', 'deskripsi']);
@@ -74,7 +75,7 @@ class DashboardController extends Controller
                 ->latest('id')
                 ->limit(5)
                 ->get()
-                ->map(fn (Surat $surat): array => [
+                ->map(fn(Surat $surat): array => [
                     'id' => $surat->id,
                     'reference' => $surat->nomor_surat ?: sprintf('REQ-%05d', $surat->id),
                     'jenisSurat' => $surat->jenisSurat?->nama ?? 'Surat Akademik',
@@ -86,13 +87,13 @@ class DashboardController extends Controller
                     'neededAt' => optional($surat->tanggal_kebutuhan)?->toDateString(),
                 ])
                 ->values(),
-            'categories' => $categories->map(fn (SuratCategory $category): array => [
+            'categories' => $categories->map(fn(SuratCategory $category): array => [
                 'id' => $category->id,
                 'nama' => $category->nama,
                 'slug' => $category->slug,
                 'deskripsi' => $category->deskripsi,
             ])->values(),
-            'jenisSurats' => $jenisSurats->map(fn (JenisSurat $jenisSurat): array => [
+            'jenisSurats' => $jenisSurats->map(fn(JenisSurat $jenisSurat): array => [
                 'id' => $jenisSurat->id,
                 'categoryId' => $jenisSurat->category_id,
                 'nama' => $jenisSurat->nama,

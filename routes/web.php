@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
@@ -26,7 +27,7 @@ Route::get('/login', function () {
 Route::get('/register', function () {
     return Inertia::render('auth/Register', [
         'roles'         => \App\Models\Role::whereNotIn('slug', ['super-admin'])
-                            ->orderBy('nama')->get(['id', 'nama', 'slug']),
+            ->orderBy('nama')->get(['id', 'nama', 'slug']),
         'programStudis' => \App\Models\ProgramStudi::orderBy('nama')->get(['id', 'nama']),
     ]);
 })->middleware('guest')->name('register');
@@ -49,33 +50,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $roleSlug = str((string) ($user->role?->slug ?? ''))->slug()->toString();
         $roleName = str((string) ($user->role?->nama ?? ''))->slug()->toString();
 
-        \Log::info('Redirect dashboard', [
+        Log::info('Redirect dashboard - computed role', [
             'user_id' => $user->id,
             'role_slug' => $roleSlug,
             'role_name' => $roleName,
         ]);
 
-        if (in_array($roleSlug, ['admin'], true) || in_array($roleName, ['admin'], true)) {
-            \Log::info('Redirecting to admin.dashboard');
+        // Prefer model helper methods for consistent role checks
+        if ($user->hasRole('admin')) {
+            Log::info('Redirecting to admin.dashboard', ['user_id' => $user->id, 'role' => $user->roleSlug()]);
             return redirect()->route('admin.dashboard');
         }
 
-        if (in_array($roleSlug, ['kaprodi', 'dekan'], true) || in_array($roleName, ['kaprodi', 'dekan'], true)) {
+        if ($user->hasRole('kaprodi', 'dekan')) {
+            Log::info('Redirecting to admin.dashboard (kaprodi/dekan)', ['user_id' => $user->id, 'role' => $user->roleSlug()]);
             return redirect()->route('admin.dashboard');
         }
 
-        if (str($roleSlug)->contains('dosen') || str($roleName)->contains('dosen')) {
+        if ($user->hasFastUserRole()) {
+            Log::info('Redirecting to fast.user.dashboard', ['user_id' => $user->id, 'role' => $user->roleSlug()]);
             return redirect()->route('fast.user.dashboard');
         }
 
-        if (str($roleSlug)->contains('mahasiswa') || str($roleName)->contains('mahasiswa')) {
-            return redirect()->route('fast.user.dashboard');
-        }
-
+        Log::warning('No matching role for redirect', ['user_id' => $user->id, 'role_slug' => $roleSlug, 'role_name' => $roleName]);
         abort(403);
     })->name('redirect.dashboard');
 });
 
-require __DIR__.'/fast.php';
-require __DIR__.'/settings.php';
-require __DIR__.'/qr_verification.php';
+require __DIR__ . '/fast.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/qr_verification.php';
