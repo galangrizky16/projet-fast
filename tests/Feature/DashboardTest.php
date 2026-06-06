@@ -55,20 +55,20 @@ test('dosen users are redirected to the fast user dashboard after login redirect
         ->assertRedirect(route('fast.user.dashboard'));
 });
 
-test('kaprodi users are redirected to the approval dashboard after login redirect route', function () {
+test('kaprodi users are redirected to the kaprodi dashboard after login redirect route', function () {
     $user = createUserWithRole('Kaprodi', 'kaprodi');
 
     $this->actingAs($user)
         ->get(route('redirect.dashboard'))
-        ->assertRedirect(route('approval.dashboard'));
+        ->assertRedirect(route('kaprodi.dashboard'));
 });
 
-test('dekan users are redirected to the approval dashboard after login redirect route', function () {
+test('dekan users are redirected to the dekan dashboard after login redirect route', function () {
     $user = createUserWithRole('Dekan', 'dekan');
 
     $this->actingAs($user)
         ->get(route('redirect.dashboard'))
-        ->assertRedirect(route('approval.dashboard'));
+        ->assertRedirect(route('dekan.dashboard'));
 });
 
 test('admin users cannot access the fast user dashboard directly', function () {

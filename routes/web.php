@@ -62,9 +62,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return redirect()->route('admin.dashboard');
         }
 
-        if ($user->hasRole('kaprodi', 'dekan')) {
-            Log::info('Redirecting to admin.dashboard (kaprodi/dekan)', ['user_id' => $user->id, 'role' => $user->roleSlug()]);
-            return redirect()->route('admin.dashboard');
+        if ($user->hasRole('kaprodi')) {
+            Log::info('Redirecting to kaprodi.dashboard', ['user_id' => $user->id, 'role' => $user->roleSlug()]);
+            return redirect()->route('kaprodi.dashboard');
+        }
+
+        if ($user->hasRole('dekan')) {
+            Log::info('Redirecting to dekan.dashboard', ['user_id' => $user->id, 'role' => $user->roleSlug()]);
+            return redirect()->route('dekan.dashboard');
         }
 
         if ($user->hasFastUserRole()) {

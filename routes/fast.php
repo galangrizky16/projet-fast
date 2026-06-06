@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Route;
 | Preview / unduh dokumen. Path memakai prefix /admin/ dan nama "admin.*"
 | karena di-handle oleh Admin\DashboardController & Admin\LetterController.
 */
+
 Route::middleware(['auth', 'verified'])
     ->prefix('admin')
     ->name('admin.')
@@ -93,6 +94,40 @@ Route::middleware(['auth', 'verified', 'fast.user'])->group(function (): void {
 Route::middleware(['auth', 'verified', 'staff.access'])
     ->prefix('admin')
     ->name('admin.')
+    ->group(function (): void {
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->name('dashboard');
+        Route::get('/archive', [ArchiveController::class, 'index'])
+            ->name('archive.index');
+        Route::get('/surat/{id}', [DashboardController::class, 'show'])
+            ->whereNumber('id')
+            ->name('surat.show');
+    });
+
+/*
+|--------------------------------------------------------------------------
+| Role-specific admin-style dashboards
+|--------------------------------------------------------------------------
+|
+| Kaprodi dan Dekan setiap memiliki route sendiri tetapi melihat layout
+| dan data admin-style dashboard yang sama.
+*/
+Route::middleware(['auth', 'verified', 'role:kaprodi'])
+    ->prefix('kaprodi')
+    ->name('kaprodi.')
+    ->group(function (): void {
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->name('dashboard');
+        Route::get('/archive', [ArchiveController::class, 'index'])
+            ->name('archive.index');
+        Route::get('/surat/{id}', [DashboardController::class, 'show'])
+            ->whereNumber('id')
+            ->name('surat.show');
+    });
+
+Route::middleware(['auth', 'verified', 'role:dekan'])
+    ->prefix('dekan')
+    ->name('dekan.')
     ->group(function (): void {
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
