@@ -4,6 +4,9 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { Search, QrCode, ShieldOff, Eye, XCircle } from 'lucide-vue-next';
+import { useRolePrefix } from '@/composables/useRolePrefix';
+
+const { rolePrefix } = useRolePrefix();
 
 type SuratItem = {
     id: number; status: string;
@@ -44,13 +47,13 @@ function openRevoke(item: SuratItem) {
 
 function submitRevoke() {
     if (!targetId.value) return;
-    revokeForm.post(`/admin/qr/${targetId.value}/revoke`, {
+    revokeForm.post(`${rolePrefix.value}/qr/${targetId.value}/revoke`, {
         onSuccess: () => { showRevokeModal.value = false; },
     });
 }
 
 function applyFilter() {
-    router.get('/admin/qr', {
+    router.get(`${rolePrefix.value}/qr`, {
         search: search.value || undefined,
         status: status.value || undefined,
     }, { preserveState: true, replace: true });
@@ -166,7 +169,7 @@ function qrStatusLabel(s?: string) {
                             <td class="px-5 py-3.5">
                                 <div class="flex items-center justify-end gap-1.5">
                                     <!-- Lihat detail surat -->
-                                    <Link :href="`/admin/surat/${item.id}`"
+                                    <Link :href="`${rolePrefix}/surat/${item.id}`"
                                         class="grid size-7 place-items-center rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
                                         title="Lihat Surat">
                                         <Eye class="size-3.5" />

@@ -5,6 +5,9 @@ import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { ChevronLeft, Send, Eye, Maximize2, Minimize2 } from 'lucide-vue-next';
 import { computed, onMounted, onUnmounted } from 'vue';
+import { useRolePrefix } from '@/composables/useRolePrefix';
+
+const { rolePrefix } = useRolePrefix();
 
 // Buat blob URL dari HTML agar tidak perlu sandbox
 const blobUrl = ref('');
@@ -56,7 +59,7 @@ const form = useForm({
 const fullPreview = ref(false);
 
 function submit() {
-    form.post('/admin/surat/store');
+    form.post(`${rolePrefix.value}/surat/store`);
 }
 
 function goBack() {
@@ -76,8 +79,8 @@ const steps = needsApproval
         :subtitle="`${jenisSurat.category?.nama ?? 'Surat'} — ${jenisSurat.nama}`"
         active-menu="letters.create"
         :breadcrumbs="[
-            { label: 'Buat Surat', href: '/admin/surat/create' },
-            { label: 'Isi Form', href: `/admin/surat/form/${jenisSurat.id}` },
+            { label: 'Buat Surat', href: `${rolePrefix}/surat/create` },
+            { label: 'Isi Form', href: `${rolePrefix}/surat/form/${jenisSurat.id}` },
             { label: 'Preview' },
         ]"
     >

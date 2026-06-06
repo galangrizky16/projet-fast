@@ -4,6 +4,9 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { FilePlus2, Eye, Download, CheckCircle2, XCircle, Clock3, FileText, TrendingUp, Calendar, AlertTriangle, X, Pencil } from 'lucide-vue-next';
+import { useRolePrefix } from '@/composables/useRolePrefix';
+
+const { rolePrefix } = useRolePrefix();
 
 type SuratItem = {
     id: number; status: string; nomor_surat?: string | null;
@@ -38,7 +41,7 @@ const status = ref(props.filters.status ?? '');
 const jenisSuratId = ref(props.filters.jenis_surat_id ?? '');
 
 function applyFilter() {
-    router.get('/admin/dashboard', {
+    router.get(`${rolePrefix.value}/dashboard`, {
         search: search.value || undefined,
         status: status.value || undefined,
         jenis_surat_id: jenisSuratId.value || undefined,
@@ -57,7 +60,7 @@ const approvingId = ref<number | null>(null);
 function approveSurat(id: number) {
     if (approvingId.value) return;
     approvingId.value = id;
-    router.post(`/admin/surat/${id}/approve`, {}, {
+    router.post(`${rolePrefix.value}/surat/${id}/approve`, {}, {
         preserveScroll: true,
         onFinish: () => { approvingId.value = null; },
     });
@@ -77,7 +80,7 @@ function closeRejectModal() {
 }
 function submitReject() {
     if (rejectTargetId.value === null) return;
-    rejectForm.post(`/admin/surat/${rejectTargetId.value}/reject`, {
+    rejectForm.post(`${rolePrefix.value}/surat/${rejectTargetId.value}/reject`, {
         preserveScroll: true,
         onSuccess: () => closeRejectModal(),
     });
@@ -183,7 +186,7 @@ function historyColor(action: string) {
                         <h2 class="text-sm font-semibold text-slate-900">Daftar Pengajuan Surat</h2>
                         <p class="text-xs text-slate-400 mt-0.5">{{ surats.from ?? 0 }}–{{ surats.to ?? 0 }} dari {{ surats.total }}</p>
                     </div>
-                    <Link href="/admin/surat/create" class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 transition-colors shrink-0">
+                    <Link :href="`${rolePrefix}/surat/create`" class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 transition-colors shrink-0">
                         <FilePlus2 class="size-3.5" />
                         Buat Surat
                     </Link>
@@ -254,10 +257,10 @@ function historyColor(action: string) {
                                 </td>
                                 <td class="px-5 py-3.5">
                                     <div class="flex items-center justify-end gap-1.5">
-                                        <Link :href="`/admin/surat/${item.id}`" title="Lihat detail" class="grid size-7 place-items-center rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors">
+                                        <Link :href="`${rolePrefix}/surat/${item.id}`" title="Lihat detail" class="grid size-7 place-items-center rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors">
                                             <Eye class="size-3.5" />
                                         </Link>
-                                        <a v-if="item.status === 'finished'" :href="`/admin/surat/${item.id}/pdf`" target="_blank" title="Unduh PDF" class="grid size-7 place-items-center rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors">
+                                        <a v-if="item.status === 'finished'" :href="`${rolePrefix}/surat/${item.id}/pdf`" target="_blank" title="Unduh PDF" class="grid size-7 place-items-center rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors">
                                             <Download class="size-3.5" />
                                         </a>
                                         <button v-if="item.status === 'pending'" type="button" title="Validasi & teruskan" :disabled="approvingId === item.id" class="grid size-7 place-items-center rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors disabled:opacity-50" @click="approveSurat(item.id)">
@@ -266,7 +269,7 @@ function historyColor(action: string) {
                                         <button v-if="item.status === 'pending'" type="button" title="Tolak (beri komentar)" class="grid size-7 place-items-center rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors" @click="openRejectModal(item.id)">
                                             <XCircle class="size-3.5" />
                                         </button>
-                                        <Link v-if="item.status === 'rejected'" :href="`/admin/surat/${item.id}/edit`" title="Edit & teruskan" class="grid size-7 place-items-center rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">
+                                        <Link v-if="item.status === 'rejected'" :href="`${rolePrefix}/surat/${item.id}/edit`" title="Edit & teruskan" class="grid size-7 place-items-center rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">
                                             <Pencil class="size-3.5" />
                                         </Link>
                                     </div>
@@ -318,7 +321,7 @@ function historyColor(action: string) {
                     </div>
                 </div>
                 <div class="border-t border-slate-100 px-5 py-3">
-                    <Link href="/admin/history" class="text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors">
+                    <Link :href="`${rolePrefix}/history`" class="text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors">
                         Lihat semua riwayat →
                     </Link>
                 </div>

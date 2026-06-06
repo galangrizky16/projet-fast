@@ -5,6 +5,9 @@ import PdfViewer from '@/components/PdfViewer.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { FileText, Download, Eye, ArrowLeft, Clock, CheckCircle, XCircle, QrCode, X, ShieldCheck, AlertTriangle, FileEdit } from 'lucide-vue-next';
+import { useRolePrefix } from '@/composables/useRolePrefix';
+
+const { rolePrefix } = useRolePrefix();
 
 type Lampiran = { id: number; name: string; url: string; type: string };
 type Surat = {
@@ -37,7 +40,7 @@ const rejectModalOpen = ref(false);
 const rejectForm = useForm({ reason: '' });
 
 function approveAdmin() {
-    router.post(`/admin/surat/${props.id}/approve`, {}, {
+    router.post(`${rolePrefix.value}/surat/${props.id}/approve`, {}, {
         onSuccess: () => {},
     });
 }
@@ -45,7 +48,7 @@ function approveAdmin() {
 function openRejectModal() { rejectModalOpen.value = true; rejectForm.reset(); }
 function closeRejectModal() { rejectModalOpen.value = false; }
 function submitReject() {
-    rejectForm.post(`/admin/surat/${props.id}/reject`, {
+    rejectForm.post(`${rolePrefix.value}/surat/${props.id}/reject`, {
         onSuccess: () => closeRejectModal(),
     });
 }
@@ -66,7 +69,7 @@ function openPreviewDocument() {
 }
 
 function openDownloadPdf() {
-    viewerUrl.value   = `/admin/surat/${props.id}/pdf`;
+    viewerUrl.value   = `${rolePrefix.value}/surat/${props.id}/pdf`;
     viewerTitle.value = `${props.jenis_surat} — ${props.nomor_surat ?? ''}`;
     viewerType.value  = 'pdf';
     viewerOpen.value  = true;
@@ -110,7 +113,7 @@ function formatDate(iso: string|null): string {
         :subtitle="jenis_surat"
         active-menu="letters"
         :breadcrumbs="[
-            { label: 'Arsip', href: '/admin/archive' },
+            { label: 'Arsip', href: `${rolePrefix}/archive` },
             { label: 'Detail Surat' },
         ]"
     >
@@ -121,7 +124,7 @@ function formatDate(iso: string|null): string {
             <div>
                 <button type="button"
                     class="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-                    @click="router.visit('/admin/archive')">
+                    @click="router.visit(`${rolePrefix}/archive`)">
                     <ArrowLeft class="size-4" /> Kembali ke Arsip
                 </button>
             </div>
@@ -226,7 +229,7 @@ function formatDate(iso: string|null): string {
 
                 <!-- Tombol edit (hanya jika ditolak & pernah divalidasi admin) -->
                 <div v-if="can_edit" class="mb-4 flex flex-wrap gap-3">
-                    <Link :href="`/admin/surat/${id}/edit`"
+                    <Link :href="`${rolePrefix}/surat/${id}/edit`"
                         class="flex items-center gap-1.5 rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 transition-colors">
                         <FileEdit class="size-4" /> Edit & Teruskan
                     </Link>

@@ -4,6 +4,9 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { Search, X, FileText, ChevronRight, AlertCircle } from 'lucide-vue-next';
+import { useRolePrefix } from '@/composables/useRolePrefix';
+
+const { rolePrefix } = useRolePrefix();
 
 type JenisSurat = {
     id: number; nama: string; slug?: string | null;
@@ -58,7 +61,7 @@ function catColor(warna?: string | null) {
 }
 
 function submit() {
-    form.post('/admin/surat/select-type');
+    form.post(`${rolePrefix.value}/surat/select-type`);
 }
 </script>
 

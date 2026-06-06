@@ -4,6 +4,9 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { Search, Download, Eye, Archive, FileText } from 'lucide-vue-next';
+import { useRolePrefix } from '@/composables/useRolePrefix';
+
+const { rolePrefix } = useRolePrefix();
 
 type SuratItem = {
     id: number;
@@ -34,7 +37,7 @@ const dateTo       = ref(props.filters.date_to ?? '');
 const jenisSuratId = ref(props.filters.jenis_surat_id ?? '');
 
 function applyFilter() {
-    router.get('/admin/archive', {
+    router.get(`${rolePrefix.value}/archive`, {
         search:         search.value || undefined,
         date_from:      dateFrom.value || undefined,
         date_to:        dateTo.value || undefined,
@@ -141,7 +144,7 @@ function formatDate(d?: string | null) {
                             </td>
                             <td class="px-5 py-3.5">
                                 <div class="flex items-center justify-end gap-1.5">
-                                    <Link :href="`/admin/surat/${item.id}`"
+                                    <Link :href="`${rolePrefix}/surat/${item.id}`"
                                         class="grid size-7 place-items-center rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
                                         title="Lihat Detail">
                                         <Eye class="size-3.5" />

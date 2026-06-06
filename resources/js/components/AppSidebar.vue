@@ -1,6 +1,14 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, FileCheck2, FilePlus2, FileStack, FolderGit2, LayoutGrid, ScrollText } from 'lucide-vue-next';
+import { Link } from '@inertiajs/vue3';
+import {
+    BookOpen,
+    FileCheck2,
+    FilePlus2,
+    FileStack,
+    FolderGit2,
+    LayoutGrid,
+    ScrollText,
+} from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
@@ -17,57 +25,40 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
+import { useRolePrefix } from '@/composables/useRolePrefix';
 
-type PageProps = {
-    auth?: {
-        user?: {
-            role?: {
-                slug?: string | null;
-                nama?: string | null;
-            } | null;
-        } | null;
-    };
-};
-
-const page = usePage<PageProps>();
-
-const roleSlug = computed(() => {
-    const slug = String(page.props.auth?.user?.role?.slug ?? '').trim().toLowerCase();
-
-    if (slug !== '') {
-        return slug;
-    }
-
-    return String(page.props.auth?.user?.role?.nama ?? '').trim().toLowerCase();
-});
+const { rolePrefix: routePrefix, roleSlug } = useRolePrefix();
 
 const mainNavItems = computed<NavItem[]>(() => {
     if (roleSlug.value.includes('admin')) {
         return [
             {
                 title: 'Dashboard',
-                href: '/admin/dashboard',
+                href: `${routePrefix.value}/dashboard`,
                 icon: LayoutGrid,
             },
             {
                 title: 'Pembuatan Surat',
-                href: '/admin/surat/create',
+                href: `${routePrefix.value}/surat/create`,
                 icon: FilePlus2,
             },
             {
                 title: 'Semua Pengajuan',
-                href: '/admin/dashboard',
+                href: `${routePrefix.value}/surat`,
                 icon: FileStack,
             },
             {
                 title: 'Template Surat',
-                href: '/admin/templates',
+                href: `${routePrefix.value}/templates`,
                 icon: ScrollText,
             },
         ];
     }
 
-    if (roleSlug.value.includes('kaprodi') || roleSlug.value.includes('dekan')) {
+    if (
+        roleSlug.value.includes('kaprodi') ||
+        roleSlug.value.includes('dekan')
+    ) {
         return [
             {
                 title: 'Dashboard Approval',

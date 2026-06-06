@@ -4,6 +4,9 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { ChevronRight, ChevronLeft, Plus, X, Search } from 'lucide-vue-next';
+import { useRolePrefix } from '@/composables/useRolePrefix';
+
+const { rolePrefix } = useRolePrefix();
 
 type FieldOption = { label: string; value: string };
 type FieldConfig = {
@@ -96,7 +99,7 @@ function removeRepeat(name: string, i: number) {
 }
 
 // ── Submit ─────────────────────────────────────────────────────────────────
-function submit() { form.post('/admin/surat/preview'); }
+function submit() { form.post(`${rolePrefix.value}/surat/preview`); }
 
 function fieldError(name: string): string | undefined {
     return (form.errors as any)[`data.${name}`] ?? (form.errors as any)[name];
@@ -113,7 +116,7 @@ const hasRequiredFields = computed(() =>
         :subtitle="`${jenisSurat.category?.nama ?? 'Surat'} — ${jenisSurat.nama}`"
         active-menu="letters.create"
         :breadcrumbs="[
-            { label: 'Buat Surat', href: '/admin/surat/create' },
+            { label: 'Buat Surat', href: `${rolePrefix}/surat/create` },
             { label: 'Isi Form' },
         ]"
     >
@@ -345,7 +348,7 @@ const hasRequiredFields = computed(() =>
 
                 <!-- Navigasi -->
                 <div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-5 py-4">
-                    <a href="/admin/surat/create"
+                    <a :href="`${rolePrefix}/surat/create`"
                         class="flex items-center gap-1.5 rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
                         <ChevronLeft class="size-4" /> Kembali
                     </a>

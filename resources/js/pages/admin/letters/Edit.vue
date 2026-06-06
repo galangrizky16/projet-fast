@@ -4,6 +4,9 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { ChevronLeft, Save, Search, Plus, X, FileEdit } from 'lucide-vue-next';
+import { useRolePrefix } from '@/composables/useRolePrefix';
+
+const { rolePrefix } = useRolePrefix();
 
 type FieldOption = { label: string; value: string };
 type FieldConfig = {
@@ -110,7 +113,7 @@ function submit() {
     };
     // Use Inertia form transformation to send as PATCH
     form.transform(() => payload)
-        .patch(`/admin/surat/${props.surat.id}`);
+        .patch(`${rolePrefix.value}/surat/${props.surat.id}`);
 }
 
 function fieldError(name: string): string | undefined {
@@ -128,7 +131,7 @@ const hasRequiredFields = computed(() =>
         :subtitle="`${jenisSurat.category?.nama ?? 'Surat'} — ${jenisSurat.nama}`"
         active-menu="letters"
         :breadcrumbs="[
-            { label: 'Dashboard', href: '/admin/dashboard' },
+            { label: 'Dashboard', href: `${rolePrefix}/dashboard` },
             { label: 'Edit Surat' },
         ]"
     >
@@ -343,7 +346,7 @@ const hasRequiredFields = computed(() =>
 
                 <!-- Navigasi -->
                 <div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-5 py-4">
-                    <a :href="`/admin/surat/${surat.id}`"
+                    <a :href="`${rolePrefix}/surat/${surat.id}`"
                         class="flex items-center gap-1.5 rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
                         <ChevronLeft class="size-4" /> Kembali
                     </a>

@@ -4,6 +4,9 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { FilePlus2, Eye, Download, CheckCircle2, XCircle, Search, Filter } from 'lucide-vue-next';
+import { useRolePrefix } from '@/composables/useRolePrefix';
+
+const { rolePrefix } = useRolePrefix();
 
 type SuratItem = {
     id: number; status: string;
@@ -34,7 +37,7 @@ const status       = ref(props.filters.status ?? '');
 const jenisSuratId = ref(props.filters.jenis_surat_id ?? '');
 
 function applyFilter() {
-    router.get('/admin/surat', {
+    router.get(`${rolePrefix.value}/surat`, {
         search:        search.value || undefined,
         status:        status.value || undefined,
         jenis_surat_id: jenisSuratId.value || undefined,
@@ -77,7 +80,7 @@ function statusClass(s: string) {
         :breadcrumbs="[{ label: 'Semua Pengajuan' }]"
     >
         <template #actions>
-            <Link href="/admin/surat/create"
+            <Link :href="`${rolePrefix}/surat/create`"
                 class="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 transition-colors">
                 <FilePlus2 class="size-3.5" /> Buat Surat
             </Link>
@@ -188,20 +191,20 @@ function statusClass(s: string) {
                             </td>
                             <td class="px-5 py-3.5">
                                 <div class="flex items-center justify-end gap-1.5">
-                                    <Link :href="`/admin/surat/${item.id}`"
+                                    <Link :href="`${rolePrefix}/surat/${item.id}`"
                                         class="grid size-7 place-items-center rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
                                         title="Lihat Detail">
                                         <Eye class="size-3.5" />
                                     </Link>
                                     <a v-if="item.status === 'finished'"
-                                        :href="`/admin/surat/${item.id}/pdf`"
+                                        :href="`${rolePrefix}/surat/${item.id}/pdf`"
                                         target="_blank"
                                         class="grid size-7 place-items-center rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
                                         title="Download PDF">
                                         <Download class="size-3.5" />
                                     </a>
                                     <Link v-if="['pending','validated_admin'].includes(item.status)"
-                                        :href="`/admin/surat/${item.id}`"
+                                        :href="`${rolePrefix}/surat/${item.id}`"
                                         class="grid size-7 place-items-center rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
                                         title="Proses">
                                         <CheckCircle2 class="size-3.5" />

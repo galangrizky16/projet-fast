@@ -4,6 +4,9 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, Search } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
+import { useRolePrefix } from '@/composables/useRolePrefix';
+
+const { rolePrefix } = useRolePrefix();
 
 type Category = {
     id: number; nama: string; slug: string;
@@ -90,18 +93,18 @@ function closeModal() {
 
 function submit() {
     if (editTarget.value) {
-        form.put(`/admin/categories/${editTarget.value.id}`, {
+        form.put(`${rolePrefix.value}/categories/${editTarget.value.id}`, {
             onSuccess: () => closeModal(),
         });
     } else {
-        form.post('/admin/categories', {
+        form.post(`${rolePrefix.value}/categories`, {
             onSuccess: () => closeModal(),
         });
     }
 }
 
 function toggleActive(cat: Category) {
-    router.put(`/admin/categories/${cat.id}`, {
+    router.put(`${rolePrefix.value}/categories/${cat.id}`, {
         ...cat,
         is_active: !cat.is_active,
     }, { preserveScroll: true });
@@ -109,7 +112,7 @@ function toggleActive(cat: Category) {
 
 function destroy(cat: Category) {
     if (confirm(`Hapus kategori "${cat.nama}"?`)) {
-        router.delete(`/admin/categories/${cat.id}`, { preserveScroll: true });
+        router.delete(`${rolePrefix.value}/categories/${cat.id}`, { preserveScroll: true });
     }
 }
 </script>
